@@ -4,6 +4,15 @@
 
 ---
 
+## Live Demo
+
+| | URL |
+|---|---|
+| Frontend | research-portal-pearl.vercel.app |
+| Backend API | https://research-portal-backend-lsqa.onrender.com |
+
+---
+
 ## What This Does
 
 Upload any earnings call transcript PDF. The platform reads it, sends it to an AI model, and returns a fully structured research brief — the kind of output a junior analyst would spend hours producing manually.
@@ -30,6 +39,8 @@ Tested successfully on real Infosys Investor Day transcripts and ACME Corp sampl
 | PDF Parsing | pdf2json |
 | HTTP Client | Axios |
 | File Upload | Multer (in-memory, no disk storage) |
+| Frontend Hosting | Vercel |
+| Backend Hosting | Render |
 
 ---
 
@@ -37,7 +48,7 @@ Tested successfully on real Infosys Investor Day transcripts and ACME Corp sampl
 
 ```
 research-portal/
-├── client/                     # React frontend
+├── client/                     # React frontend (deployed on Vercel)
 │   ├── src/
 │   │   ├── components/
 │   │   │   ├── FileUpload.jsx  # Drag-and-drop PDF upload
@@ -48,7 +59,7 @@ research-portal/
 │   ├── vite.config.js
 │   └── package.json
 │
-├── server/                     # Express backend
+├── server/                     # Express backend (deployed on Render)
 │   ├── routes/
 │   │   └── analyze.js          # PDF upload → text extraction → Gemini → JSON
 │   ├── utils/
@@ -67,9 +78,9 @@ research-portal/
 ```
 User uploads PDF
       ↓
-Frontend (React) sends PDF as multipart/form-data to POST /api/analyze
+Frontend (React on Vercel) sends PDF as multipart/form-data to POST /api/analyze
       ↓
-Backend (Express + Multer) receives file as in-memory buffer — never written to disk
+Backend (Express on Render) receives file as in-memory buffer — never written to disk
       ↓
 pdf2json parses the PDF buffer and extracts raw text
       ↓
@@ -87,6 +98,36 @@ React renders the result across structured UI components
       ↓
 User can Export JSON for downstream use
 ```
+
+---
+
+## Deployment
+
+This project is deployed as two separate services.
+
+### Backend — Render
+
+The Express server is hosted on Render as a Web Service.
+
+| Setting | Value |
+|---|---|
+| Root Directory | `server` |
+| Build Command | `npm install` |
+| Start Command | `node index.js` |
+| Environment Variable | `GEMINI_API_KEY` |
+
+### Frontend — Vercel
+
+The React app is hosted on Vercel, connected directly to the GitHub repository.
+
+| Setting | Value |
+|---|---|
+| Root Directory | `client` |
+| Framework Preset | Vite |
+| Build Command | `npm run build` |
+| Output Directory | `dist` |
+
+The frontend points to the live Render backend URL via the `axios.post()` call in `App.jsx`. CORS on the backend is configured to allow requests from the Vercel domain.
 
 ---
 
@@ -200,6 +241,8 @@ Accepts a PDF file and returns structured financial analysis.
 
 **Professional prompt engineering.** The AI is instructed to behave as a senior analyst at an institutional investment firm — no emoji, no casual language, no markdown — producing output suitable for an actual research report.
 
+**Separated frontend and backend deployment.** Hosting the Express API on Render and the React app on Vercel keeps concerns cleanly separated, allows each to scale independently, and takes advantage of Vercel's CDN for frontend assets.
+
 ---
 
 ## Limitations
@@ -207,6 +250,7 @@ Accepts a PDF file and returns structured financial analysis.
 - Works best with text-based PDFs. Scanned or image-based PDFs (where text is embedded as images) will fail to extract correctly.
 - File size is capped at 10 MB.
 - Processing time is typically 15–30 seconds depending on document length and Gemini API latency.
+- Render free tier spins down after inactivity — the first request after idle may take 30–60 seconds to cold start.
 - Gemini free tier has rate limits. For high-volume use, consider upgrading to a paid tier.
 - The quality of extraction depends on the structure and clarity of the source transcript. Poorly formatted documents may yield incomplete results.
 

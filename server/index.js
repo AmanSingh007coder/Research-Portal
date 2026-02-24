@@ -9,7 +9,7 @@ const app = express()
 app.use(cors({
   origin: [
     'http://localhost:5173',
-    'https://YOUR-VERCEL-URL.vercel.app'
+    'research-portal-pearl.vercel.app'
   ]
 }))
 

@@ -8,7 +8,7 @@
 
 | | URL |
 |---|---|
-| Frontend | research-portal-pearl.vercel.app |
+| Frontend | http://research-portal-pearl.vercel.app |
 | Backend API | https://research-portal-backend-lsqa.onrender.com |
 
 ---

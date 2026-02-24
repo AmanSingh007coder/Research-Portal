@@ -18,7 +18,7 @@ function App() {
     try {
       const formData = new FormData()
       formData.append('pdf', file)
-      const response = await axios.post('http://localhost:5000/api/analyze', formData, {
+      const response = await axios.post('https://research-portal-backend-lsqa.onrender.com/api/analyze', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
       setResult(response.data.data)
